@@ -48,8 +48,8 @@ export default function getAmountOfTokens() {
 
     return (
         <div>
-            Balance Of Player is {balanceOfPlayer}
-            Balance of Contract is {balanceOfContract}
+            {/* Balance Of Player is {balanceOfPlayer}
+            Balance of Contract is {balanceOfContract} */}
         </div>
     )
 }
