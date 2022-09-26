@@ -1,21 +1,19 @@
-import Head from "next/head"
-import Image from "next/image"
-import styles from "../styles/Home.module.css"
-import Header from "../components/Header"
-import StakeEntrance from "../components/StakeEntrance"
-import TestToken from "../components/TestToken"
+import { useMoralis } from "react-moralis"
+import NotAuthenticated from "../components/NotAuthenticated"
+import IsAuthenticated from "../components/IsAuthenticated"
+
 
 export default function Home() {
-    return (
-        <div className={styles.container}>
-            <Head>
-                <title>Lottery App</title>
-                <meta name="description" content="Lottery smart contract" />
-                <link rel="icon" href="/favicon.ico" />
-            </Head>
-            <Header />
-            <StakeEntrance />
-            <TestToken />
-        </div>
-    )
+    const { isAuthenticated} = useMoralis()
+    console.log(isAuthenticated)
+    if (!isAuthenticated) {
+        return (
+            <NotAuthenticated/>
+        )
+    } 
+        return (
+        
+            <IsAuthenticated />
+        )
+    
 }

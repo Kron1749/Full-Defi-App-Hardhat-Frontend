@@ -1,14 +1,16 @@
-import "../styles/globals.css"
+import { ChakraProvider } from "@chakra-ui/react"
 import { MoralisProvider } from "react-moralis"
-import { NotificationProvider } from "web3uikit"
 
 function MyApp({ Component, pageProps }) {
     return (
-        <MoralisProvider initializeOnMount={false}>
-            <NotificationProvider>
+        <ChakraProvider>
+            <MoralisProvider
+                appId={process.env.NEXT_PUBLIC_APPID}
+                serverUrl={process.env.NEXT_PUBLIC_SERVER_URL}
+            >
                 <Component {...pageProps} />
-            </NotificationProvider>
-        </MoralisProvider>
+            </MoralisProvider>
+        </ChakraProvider>
     )
 }
 
