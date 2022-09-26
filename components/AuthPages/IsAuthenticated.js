@@ -1,13 +1,10 @@
-
-
-
-
-
-
 import { Flex, Text, Button, Box, TabList, Tab, Tabs, TabPanels, TabPanel } from "@chakra-ui/react"
 import Head from "next/head"
 import { useMoralis } from "react-moralis"
-import Header from "./Header"
+import Header from "../Header"
+import Profile from "../Profile"
+import Balance from "../Balance"
+import StakeTokens from "../StakeTokens"
 
 export default function IsAuthenticated(){
     const {user,logout,isLoggingOut} = useMoralis()
@@ -28,10 +25,14 @@ export default function IsAuthenticated(){
                         </TabList>
                         <TabPanels>
                             <TabPanel>
-                                Profile
+                                <Profile user={user}/>
                             </TabPanel>
-                            <TabPanel>Balance</TabPanel>
-                            <TabPanel>Stake Tokens</TabPanel>
+                            <TabPanel>
+                                <Balance user={user}/>
+                            </TabPanel>
+                            <TabPanel>
+                                <StakeTokens user={user}/>
+                            </TabPanel>
                             <TabPanel>Withdraw Rewards</TabPanel>
                         </TabPanels>
                     </Tabs>

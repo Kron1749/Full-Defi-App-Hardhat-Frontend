@@ -1,14 +1,16 @@
+import CustomContainer from "./CustomContainer"
 import { useWeb3Contract } from "react-moralis"
 import {
     testTokenContractAddress,
     testTokenABI,
     stakingRewardsContractAddress,
 } from "../Constants"
+import { Text} from "@chakra-ui/react"
+import { useState } from "react"
 import { useMoralis } from "react-moralis"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 
-export default function getAmountOfTokens() {
-    const { account } = useMoralis()
+export default function Profile({user}) {
     const { chainId: chainIdHex, isWeb3Enabled } = useMoralis()
     const chainId = parseInt(chainIdHex)
     const stakingRewardAddress =
@@ -23,7 +25,7 @@ export default function getAmountOfTokens() {
         abi: testTokenABI,
         contractAddress: testTokenAddress,
         functionName: "balanceOf",
-        params: { account: account },
+        params: { account: user.get('ethAddress') },
     })
 
     const { runContractFunction: getBalanceOfContract } = useWeb3Contract({
@@ -41,15 +43,19 @@ export default function getAmountOfTokens() {
     }
 
     useEffect(() => {
-        if (isWeb3Enabled) {
-            updateUI()
-        }
-    }, [isWeb3Enabled])
+        setTimeout(() => {
+            if (isWeb3Enabled) {
+                updateUI()
+                console.log("Up updated")
+            }
+        }, 10000);
+      });
+
 
     return (
-        <div>
-            {/* Balance Of Player is {balanceOfPlayer}
-            Balance of Contract is {balanceOfContract} */}
-        </div>
+        <CustomContainer>            
+            <Text>Balance of User: {balanceOfPlayer} </Text>
+            <Text>Contract balance: {balanceOfContract} </Text>
+        </CustomContainer>
     )
 }

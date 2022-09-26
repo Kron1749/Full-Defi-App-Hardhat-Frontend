@@ -1,6 +1,6 @@
 import { useMoralis } from "react-moralis"
-import NotAuthenticated from "../components/NotAuthenticated"
-import IsAuthenticated from "../components/IsAuthenticated"
+import NotAuthenticated from "../components/AuthPages/NotAuthenticated"
+import IsAuthenticated from "../components/AuthPages/IsAuthenticated"
 
 
 export default function Home() {
