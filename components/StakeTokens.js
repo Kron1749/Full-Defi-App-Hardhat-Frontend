@@ -4,48 +4,72 @@ import {
     testTokenContractAddress,
     testTokenABI,
 } from "../Constants"
-
+import { Modal, Input } from "web3uikit"
+import { useNotification } from "web3uikit"
 import { useEffect } from "react"
-import { FormControl, FormLabel, NumberDecrementStepper, NumberIncrementStepper, NumberInput, NumberInputField, NumberInputStepper, Text, Input, Button, useToast } from "@chakra-ui/react";
-import Moralis from "moralis";
-import CustomContainer from "./CustomContainer";
-import React from "react";
+import CustomContainer from "./CustomContainer"
+import React from "react"
 import { useWeb3Contract } from "react-moralis"
 import { useMoralis } from "react-moralis"
 import { useState } from "react"
+import { FormControl, FormLabel, Button } from "@chakra-ui/react"
 
-export default function StakeTokens({user}) {
+export default function StakeTokens() {
     console.log("Updated")
-    const { chainId: chainIdHex, isWeb3Enabled,enableWeb3 } = useMoralis()
-    const userAddress = user.get('ethAddress')
-    const toast = useToast()
+    const dispatch = useNotification()
+    const { chainId: chainIdHex, isWeb3Enabled, account } = useMoralis()
+    console.log(`WEB3 IS ${isWeb3Enabled}`)
     const chainId = parseInt(chainIdHex)
     const stakingRewardAddress =
         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
     const testTokenAddress =
         chainId in testTokenContractAddress ? testTokenContractAddress[chainId][0] : null
 
-     const [amountToStake,setAmountToStake] = useState("0")   
+    const [amountToStake, setAmountToStake] = useState("0")
+    const [totalSupply, setTotalSupply] = useState("0")
+    const [allowance, setAllowance] = useState("0")
 
-    const {
-        runContractFunction: stakeTokens,
-    } = useWeb3Contract({
+    const { runContractFunction: stakeTokens } = useWeb3Contract({
         abi: stakingRewardsABI,
         contractAddress: stakingRewardAddress,
         functionName: "stakeTokens",
         params: { _amount: amountToStake },
     })
 
-    const {runContractFunction: getTokensStaked} = useWeb3Contract({
-    abi: stakingRewardsABI,
-    contractAddress: stakingRewardAddress,
-    functionName: "getTokensStaked",
-    params: { _account: userAddress }, 
-})
+    const { runContractFunction: getTokensStaked } = useWeb3Contract({
+        abi: stakingRewardsABI,
+        contractAddress: stakingRewardAddress,
+        functionName: "getTokensStaked",
+        params: { _account: account },
+    })
 
+    const { runContractFunction: getAllowance } = useWeb3Contract({
+        abi: testTokenABI,
+        contractAddress: testTokenAddress,
+        functionName: "allowance",
+        params: { owner: account, spender: stakingRewardAddress },
+    })
+
+    const { runContractFunction: getSupply } = useWeb3Contract({
+        abi: testTokenABI,
+        contractAddress: testTokenAddress,
+        functionName: "totalSupply",
+        params: {},
+    })
+
+    const { runContractFunction: increaseAllowance } = useWeb3Contract({
+        abi: testTokenABI,
+        contractAddress: testTokenAddress,
+        functionName: "increaseAllowance",
+        params: { spender: stakingRewardAddress, addedValue: totalSupply },
+    })
 
     async function updateUI() {
         const tokenStakedUpdated = (await getTokensStaked()).toString()
+        const totalSupplyUpdated = (await getSupply()).toString()
+        const allowanceUpdated = (await getAllowance()).toString()
+        setAllowance(allowanceUpdated)
+        setTotalSupply(totalSupplyUpdated)
         setAmountToStake(tokenStakedUpdated)
     }
 
@@ -54,118 +78,71 @@ export default function StakeTokens({user}) {
             updateUI()
         }
     }, [isWeb3Enabled])
-    
 
-      
+    const handleNotificationStake = function () {
+        dispatch({
+            type: "info",
+            message: "Transaction Complete",
+            title: "Tx Notification",
+            position: "topR",
+            icon: "bell",
+        })
+    }
 
-    const handleChange = (value) => setAmountToStake(value)
+    const handleStakeTokens = async (tx) => {
+        await tx.wait(1)
+        handleNotificationStake(tx)
+        setAmountToStake("0")
+        updateUI()
+    }
+
+    const handleAllowance = async (tx) => {
+        await tx.wait(1)
+        handleNotificationStake(tx)
+        setAllowance(totalSupply)
+        updateUI()
+    }
 
     return (
         <CustomContainer>
-            <Text>Stake Tokens</Text>
-            <form onSubmit={async e=>{
-                e.preventDefault()
-                // await Moralis.enableWeb3()
-                fetch({
-                    onSuccess: () => {
-                        console.log("tested")
-                        toast({
-                            title: 'Tokens succesfully staked.',
-                            description: "You successfully staked tokens",
-                            status: 'success',
-                            duration: 9000,
-                            isClosable: true,
-                          })
-                          useEffect()
-                          setAmountToStake(0)
-                    },
-                    onError: (error) => toast(
-                        {
-                            title: 'Error.',
-                            description: error,
-                            status: 'error',
-                            duration: 9000,
-                            isClosable: true,
-                          }
-                    )
-                })
-            }}>
-                <FormControl mt="4">
-                    <FormLabel htmlFor='amountToStake'>Amount to stake</FormLabel>
-                    <NumberInput  onChange={handleChange}>
-                        <NumberInputField id='amountToStake' value={amountToStake} />
-                        <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                        </NumberInputStepper>
-                    </NumberInput>
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    console.log(amountToStake)
+                    if (amountToStake !== "") {
+                        if (allowance < totalSupply) {
+                            increaseAllowance({
+                                onError: (error) => {
+                                    console.log(error)
+                                },
+                                onSuccess: handleAllowance,
+                            })
+                        } else {
+                            stakeTokens({
+                                onError: (error) => {
+                                    console.log(error)
+                                },
+                                onSuccess: handleStakeTokens,
+                            })
+                        }
+                    }
+                }}
+            >
+                <FormControl mt="6" mb="6">
+                    <FormLabel>Tokens to Stake</FormLabel>
+                    <Input
+                        label="Stake tokens"
+                        name="Stake tokens"
+                        type="number"
+                        onChange={(event) => {
+                            setAmountToStake(event.target.value)
+                        }}
+                    />
                 </FormControl>
-                <Button mt="4" type="submit" colorScheme="purple"  > Stake</Button>
+                <Button type="submit" colorScheme="purple">
+                    Stake Tokens
+                </Button>
             </form>
         </CustomContainer>
     )
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const [amountTokensToStake, setAmountTokensToStake] = useState("0")
-
-
-// // const { runContractFunction: increaseAllowance } = useWeb3Contract({
-// //     abi: testTokenABI,
-// //     contractAddress: testTokenAddress,
-// //     functionName: "increaseAllowance",
-// //     params: { spender: stakingRewardAddress, addedValue: totalBalance },
-// // })
-
-// const { runContractFunction: getAllowance } = useWeb3Contract({
-//     abi: testTokenABI,
-//     contractAddress: testTokenAddress,
-//     functionName: "allowance",
-//     params: { owner: userAddress, spender: stakingRewardAddress },
-// })
-
-
-// const { runContractFunction: getTotalSupply} = useWeb3Contract({
-//     abi: testTokenABI,
-//     contractAddress: testTokenAddress,
-//     functionName: "totalSupply",
-//     params: {},
-// })
-
-// const {runContractFunction: getTokensStaked} = useWeb3Contract({
-//     abi: stakingRewardsABI,
-//     contractAddress: stakingRewardAddress,
-//     functionName: "getTokensStaked",
-//     params: { _account: userAddress }, 
-// })

@@ -1,6 +1,7 @@
 import { Button, Center, Flex, Text } from "@chakra-ui/react"
-
-export default function Header({ user, logout, isLoggingOut }) {
+import { useMoralis } from "react-moralis"
+export default function Header() {
+    const { user, logout, isLoggingOut } = useMoralis()
     return (
         <header>
             <Flex px="10" py="6" justifyContent="space-between" bg="purple.100" color="white">
