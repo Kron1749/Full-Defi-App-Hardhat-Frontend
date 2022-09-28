@@ -4,7 +4,7 @@ import {
     testTokenContractAddress,
     testTokenABI,
 } from "../Constants"
-import { Modal, Input } from "web3uikit"
+import { Input } from "web3uikit"
 import { useNotification } from "web3uikit"
 import { useEffect } from "react"
 import CustomContainer from "./CustomContainer"
@@ -15,10 +15,8 @@ import { useState } from "react"
 import { FormControl, FormLabel, Button } from "@chakra-ui/react"
 
 export default function StakeTokens() {
-    console.log("Updated")
     const dispatch = useNotification()
     const { chainId: chainIdHex, isWeb3Enabled, account } = useMoralis()
-    console.log(`WEB3 IS ${isWeb3Enabled}`)
     const chainId = parseInt(chainIdHex)
     const stakingRewardAddress =
         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
@@ -28,6 +26,7 @@ export default function StakeTokens() {
     const [amountToStake, setAmountToStake] = useState("0")
     const [totalSupply, setTotalSupply] = useState("0")
     const [allowance, setAllowance] = useState("0")
+    const [withdrawAmount,setWithdrawAmount] = useState("0")
 
     const { runContractFunction: stakeTokens } = useWeb3Contract({
         abi: stakingRewardsABI,
@@ -36,11 +35,11 @@ export default function StakeTokens() {
         params: { _amount: amountToStake },
     })
 
-    const { runContractFunction: getTokensStaked } = useWeb3Contract({
+    const { runContractFunction: withdrawTokens } = useWeb3Contract({
         abi: stakingRewardsABI,
         contractAddress: stakingRewardAddress,
-        functionName: "getTokensStaked",
-        params: { _account: account },
+        functionName: "withdrawTokens",
+        params: { _amount: withdrawAmount },
     })
 
     const { runContractFunction: getAllowance } = useWeb3Contract({
@@ -65,12 +64,10 @@ export default function StakeTokens() {
     })
 
     async function updateUI() {
-        const tokenStakedUpdated = (await getTokensStaked()).toString()
         const totalSupplyUpdated = (await getSupply()).toString()
         const allowanceUpdated = (await getAllowance()).toString()
         setAllowance(allowanceUpdated)
         setTotalSupply(totalSupplyUpdated)
-        setAmountToStake(tokenStakedUpdated)
     }
 
     useEffect(() => {
@@ -79,7 +76,7 @@ export default function StakeTokens() {
         }
     }, [isWeb3Enabled])
 
-    const handleNotificationStake = function () {
+    const handleNotification = function () {
         dispatch({
             type: "info",
             message: "Transaction Complete",
@@ -91,15 +88,23 @@ export default function StakeTokens() {
 
     const handleStakeTokens = async (tx) => {
         await tx.wait(1)
-        handleNotificationStake(tx)
-        setAmountToStake("0")
+        handleNotification(tx)
+        setAmountToStake(amountToStake)
         updateUI()
     }
 
     const handleAllowance = async (tx) => {
         await tx.wait(1)
-        handleNotificationStake(tx)
+        handleNotification(tx)
         setAllowance(totalSupply)
+        updateUI()
+        
+    }
+
+    const handleWithdraw = async (tx) =>{
+        await tx.wait(1)
+        handleNotification(tx)
+        setWithdrawAmount(withdrawAmount)
         updateUI()
     }
 
@@ -108,7 +113,6 @@ export default function StakeTokens() {
             <form
                 onSubmit={(e) => {
                     e.preventDefault()
-                    console.log(amountToStake)
                     if (amountToStake !== "") {
                         if (allowance < totalSupply) {
                             increaseAllowance({
@@ -131,18 +135,55 @@ export default function StakeTokens() {
                 <FormControl mt="6" mb="6">
                     <FormLabel>Tokens to Stake</FormLabel>
                     <Input
-                        label="Stake tokens"
+                        label="Amount"
+                        id="stake_tokens"
                         name="Stake tokens"
                         type="number"
                         onChange={(event) => {
-                            setAmountToStake(event.target.value)
+                            setAmountToStake(event.target.value)                     
                         }}
+                        placeholder="0"
                     />
                 </FormControl>
                 <Button type="submit" colorScheme="purple">
                     Stake Tokens
                 </Button>
             </form>
+
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault()
+                    console.log(withdrawAmount)
+                    if (withdrawAmount !== "") {
+                        withdrawTokens({
+                            onError: (error) => {
+                                console.log(error)
+                            },
+                            onSuccess: handleWithdraw
+                        })
+                    }
+                }}
+            >
+                <FormControl mt="6" mb="6">
+                    <FormLabel>Tokens to Withdraw</FormLabel>
+                    <Input                      
+                        label="Amount"
+                        id="withdraw_tokens"
+                        name="Amount tokens"
+                        type="number"
+                        onChange={(event) => {
+                            console.log(event.target.value)
+                            setWithdrawAmount(event.target.value)                     
+                        }}
+                        placeholder="0"
+                    />
+                </FormControl>
+                <Button type="submit" colorScheme="purple" mb="6">
+                    Withdraw Tokens
+                </Button>
+            </form>
+
+
         </CustomContainer>
     )
 }
