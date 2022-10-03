@@ -1,8 +1,8 @@
 import CustomContainer from "./CustomContainer"
 import { useWeb3Contract } from "react-moralis"
 import {
-    testTokenContractAddress,
-    testTokenABI,
+    testToken0ContractAddress,
+    testToken0ABI,
     stakingRewardsABI,
     stakingRewardsContractAddress,
 } from "../Constants"
@@ -16,23 +16,23 @@ export default function Profile() {
     const chainId = parseInt(chainIdHex)
     const stakingRewardAddress =
         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
-    const testTokenAddress =
-        chainId in testTokenContractAddress ? testTokenContractAddress[chainId][0] : null
+    const testToken0Address =
+        chainId in testToken0ContractAddress ? testToken0ContractAddress[chainId][0] : null
 
     const [balanceOfPlayer, setBalanceOfPlayer] = useState("0")
     const [balanceOfContract, setBalanceOfContract] = useState("0")
-    const [stakedBalance,setStakedBalance] = useState("0")
+    const [stakedBalance, setStakedBalance] = useState("0")
 
     const { runContractFunction: getBalanceOfPlayer } = useWeb3Contract({
-        abi: testTokenABI,
-        contractAddress: testTokenAddress,
+        abi: testToken0ABI,
+        contractAddress: testToken0Address,
         functionName: "balanceOf",
         params: { account: account },
     })
 
     const { runContractFunction: getBalanceOfContract } = useWeb3Contract({
-        abi: testTokenABI,
-        contractAddress: testTokenAddress,
+        abi: testToken0ABI,
+        contractAddress: testToken0Address,
         functionName: "balanceOf",
         params: { account: stakingRewardAddress },
     })

@@ -1,8 +1,8 @@
 import {
     stakingRewardsContractAddress,
     stakingRewardsABI,
-    testTokenContractAddress,
-    testTokenABI,
+    testToken0ContractAddress,
+    testToken0ABI,
 } from "../Constants"
 import { Input } from "web3uikit"
 import { useNotification } from "web3uikit"
@@ -20,13 +20,13 @@ export default function StakeTokens() {
     const chainId = parseInt(chainIdHex)
     const stakingRewardAddress =
         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
-    const testTokenAddress =
-        chainId in testTokenContractAddress ? testTokenContractAddress[chainId][0] : null
+    const testToken0Address =
+        chainId in testToken0ContractAddress ? testToken0ContractAddress[chainId][0] : null
 
     const [amountToStake, setAmountToStake] = useState("0")
     const [totalSupply, setTotalSupply] = useState("0")
     const [allowance, setAllowance] = useState("0")
-    const [withdrawAmount,setWithdrawAmount] = useState("0")
+    const [withdrawAmount, setWithdrawAmount] = useState("0")
 
     const { runContractFunction: stakeTokens } = useWeb3Contract({
         abi: stakingRewardsABI,
@@ -43,22 +43,22 @@ export default function StakeTokens() {
     })
 
     const { runContractFunction: getAllowance } = useWeb3Contract({
-        abi: testTokenABI,
-        contractAddress: testTokenAddress,
+        abi: testToken0ABI,
+        contractAddress: testToken0Address,
         functionName: "allowance",
         params: { owner: account, spender: stakingRewardAddress },
     })
 
     const { runContractFunction: getSupply } = useWeb3Contract({
-        abi: testTokenABI,
-        contractAddress: testTokenAddress,
+        abi: testToken0ABI,
+        contractAddress: testToken0Address,
         functionName: "totalSupply",
         params: {},
     })
 
     const { runContractFunction: increaseAllowance } = useWeb3Contract({
-        abi: testTokenABI,
-        contractAddress: testTokenAddress,
+        abi: testToken0ABI,
+        contractAddress: testToken0Address,
         functionName: "increaseAllowance",
         params: { spender: stakingRewardAddress, addedValue: totalSupply },
     })
@@ -98,10 +98,9 @@ export default function StakeTokens() {
         handleNotification(tx)
         setAllowance(totalSupply)
         updateUI()
-        
     }
 
-    const handleWithdraw = async (tx) =>{
+    const handleWithdraw = async (tx) => {
         await tx.wait(1)
         handleNotification(tx)
         setWithdrawAmount(withdrawAmount)
@@ -140,7 +139,7 @@ export default function StakeTokens() {
                         name="Stake tokens"
                         type="number"
                         onChange={(event) => {
-                            setAmountToStake(event.target.value)                     
+                            setAmountToStake(event.target.value)
                         }}
                         placeholder="0"
                     />
@@ -159,21 +158,21 @@ export default function StakeTokens() {
                             onError: (error) => {
                                 console.log(error)
                             },
-                            onSuccess: handleWithdraw
+                            onSuccess: handleWithdraw,
                         })
                     }
                 }}
             >
                 <FormControl mt="6" mb="6">
                     <FormLabel>Tokens to Withdraw</FormLabel>
-                    <Input                      
+                    <Input
                         label="Amount"
                         id="withdraw_tokens"
                         name="Amount tokens"
                         type="number"
                         onChange={(event) => {
                             console.log(event.target.value)
-                            setWithdrawAmount(event.target.value)                     
+                            setWithdrawAmount(event.target.value)
                         }}
                         placeholder="0"
                     />
@@ -182,8 +181,6 @@ export default function StakeTokens() {
                     Withdraw Tokens
                 </Button>
             </form>
-
-
         </CustomContainer>
     )
 }
