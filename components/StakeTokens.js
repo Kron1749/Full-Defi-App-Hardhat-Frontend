@@ -24,15 +24,31 @@ export default function StakeTokens() {
         chainId in testToken0ContractAddress ? testToken0ContractAddress[chainId][0] : null
 
     const [amountToStake, setAmountToStake] = useState("0")
+    const [stakedTokens, setStakedTokens] = useState("0")
     const [totalSupply, setTotalSupply] = useState("0")
     const [allowance, setAllowance] = useState("0")
     const [withdrawAmount, setWithdrawAmount] = useState("0")
+    const [balanceOfPlayerOfToken0, setBalanceOfPlayerOfToken0] = useState("0")
 
     const { runContractFunction: stakeTokens } = useWeb3Contract({
         abi: stakingRewardsABI,
         contractAddress: stakingRewardAddress,
         functionName: "stakeTokens",
         params: { _amount: amountToStake },
+    })
+
+    const { runContractFunction: getTokensStaked } = useWeb3Contract({
+        abi: stakingRewardsABI,
+        contractAddress: stakingRewardAddress,
+        functionName: "getTokensStaked",
+        params: { _account: account },
+    })
+
+    const { runContractFunction: getBalanceOfPlayerOfToken0 } = useWeb3Contract({
+        abi: testToken0ABI,
+        contractAddress: testToken0Address,
+        functionName: "balanceOf",
+        params: { account: account },
     })
 
     const { runContractFunction: withdrawTokens } = useWeb3Contract({
@@ -64,10 +80,14 @@ export default function StakeTokens() {
     })
 
     async function updateUI() {
+        const balanceOfPlayerOfToken0FromCall = (await getBalanceOfPlayerOfToken0()).toString()
+        const stakedTokensFromCall = (await getTokensStaked()).toString()
         const totalSupplyUpdated = (await getSupply()).toString()
         const allowanceUpdated = (await getAllowance()).toString()
         setAllowance(allowanceUpdated)
         setTotalSupply(totalSupplyUpdated)
+        setBalanceOfPlayerOfToken0(balanceOfPlayerOfToken0FromCall)
+        setStakedTokens(stakedTokensFromCall)
     }
 
     useEffect(() => {
@@ -141,7 +161,7 @@ export default function StakeTokens() {
                         onChange={(event) => {
                             setAmountToStake(event.target.value)
                         }}
-                        placeholder="0"
+                        placeholder={balanceOfPlayerOfToken0}
                     />
                 </FormControl>
                 <Button type="submit" colorScheme="purple">
@@ -174,7 +194,7 @@ export default function StakeTokens() {
                             console.log(event.target.value)
                             setWithdrawAmount(event.target.value)
                         }}
-                        placeholder="0"
+                        placeholder={stakedTokens}
                     />
                 </FormControl>
                 <Button type="submit" colorScheme="purple" mb="6">

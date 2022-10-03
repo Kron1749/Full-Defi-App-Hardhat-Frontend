@@ -7,6 +7,7 @@ import Profile from "../components/Profile"
 import Balance from "../components/Balance"
 import StakeTokens from "../components/StakeTokens"
 import Rewards from "../components/Rewards"
+import Swap from "../components/Swap"
 
 export default function Home() {
     let { isAuthenticated, account, logout, isLoggingOut, authenticate } = useMoralis()
@@ -48,6 +49,7 @@ export default function Home() {
                             <Tab fontWeight="bold">Balance</Tab>
                             <Tab fontWeight="bold">Stake Tokens</Tab>
                             <Tab fontWeight="bold">Withdraw Rewards</Tab>
+                            <Tab fontWeight="bold">Swap</Tab>
                         </TabList>
                         <TabPanels>
                             <TabPanel>
@@ -60,7 +62,10 @@ export default function Home() {
                                 <StakeTokens />
                             </TabPanel>
                             <TabPanel>
-                                <Rewards/>
+                                <Rewards />
+                            </TabPanel>
+                            <TabPanel>
+                                <Swap />
                             </TabPanel>
                         </TabPanels>
                     </Tabs>

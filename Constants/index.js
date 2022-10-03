@@ -1,3 +1,5 @@
+import { useMoralis } from "react-moralis"
+
 const testToken0ContractAddress = require("./TestToken0/contractAddressesTestToken0.json")
 const testToken0ABI = require("./TestToken0/abiTestToken0.json")
 const testToken1ContractAddress = require("./TestToken1/contractAddressesTestToken1.json")

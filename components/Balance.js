@@ -1,10 +1,14 @@
 import CustomContainer from "./CustomContainer"
 import { useWeb3Contract } from "react-moralis"
+import { getBalanceOfPlayerOfToken0 } from "../Constants"
 import {
     testToken0ContractAddress,
     testToken0ABI,
+    testToken1ContractAddress,
+    testToken1ABI,
     stakingRewardsABI,
     stakingRewardsContractAddress,
+    ammSwapContractAddress,
 } from "../Constants"
 import { Text } from "@chakra-ui/react"
 import { useState } from "react"
@@ -18,23 +22,43 @@ export default function Profile() {
         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
     const testToken0Address =
         chainId in testToken0ContractAddress ? testToken0ContractAddress[chainId][0] : null
+    const testToken1Address =
+        chainId in testToken1ContractAddress ? testToken1ContractAddress[chainId][0] : null
+    const AMMSwapAddress =
+        chainId in ammSwapContractAddress ? ammSwapContractAddress[chainId][0] : null
 
-    const [balanceOfPlayer, setBalanceOfPlayer] = useState("0")
-    const [balanceOfContract, setBalanceOfContract] = useState("0")
-    const [stakedBalance, setStakedBalance] = useState("0")
+    const [balanceOfPlayerOfToken0, setBalanceOfPlayerOfToken0] = useState("0")
+    const [balanceOfContractOfToken0, setBalanceOfContractOfToken0] = useState("0")
+    const [balanceOfContractOfToken1, setBalanceOfContractOfToken1] = useState("0")
+    const [stakedBalanceOfToken0, setStakedBalanceOfToken0] = useState("0")
+    const [balanceOfPlayerOfToken1, setBalanceOfPlayerOfToken1] = useState("0")
 
-    const { runContractFunction: getBalanceOfPlayer } = useWeb3Contract({
+    const { runContractFunction: getBalanceOfPlayerOfToken0 } = useWeb3Contract({
         abi: testToken0ABI,
         contractAddress: testToken0Address,
         functionName: "balanceOf",
         params: { account: account },
     })
 
-    const { runContractFunction: getBalanceOfContract } = useWeb3Contract({
+    const { runContractFunction: getBalanceOfPlayerOfToken1 } = useWeb3Contract({
+        abi: testToken1ABI,
+        contractAddress: testToken1Address,
+        functionName: "balanceOf",
+        params: { account: account },
+    })
+
+    const { runContractFunction: getBalanceOfContractOfToken0 } = useWeb3Contract({
         abi: testToken0ABI,
         contractAddress: testToken0Address,
         functionName: "balanceOf",
-        params: { account: stakingRewardAddress },
+        params: { account: AMMSwapAddress },
+    })
+
+    const { runContractFunction: getBalanceOfContractOfToken1 } = useWeb3Contract({
+        abi: testToken1ABI,
+        contractAddress: testToken1Address,
+        functionName: "balanceOf",
+        params: { account: AMMSwapAddress },
     })
 
     const { runContractFunction: getTokensStaked } = useWeb3Contract({
@@ -45,12 +69,16 @@ export default function Profile() {
     })
 
     async function updateUI() {
-        const balanceOfPlayerFromCall = (await getBalanceOfPlayer()).toString()
-        const balanceOfContractFromCal = (await getBalanceOfContract()).toString()
-        const updatedStakedBalance = (await getTokensStaked()).toString()
-        setBalanceOfPlayer(balanceOfPlayerFromCall)
-        setBalanceOfContract(balanceOfContractFromCal)
-        setStakedBalance(updatedStakedBalance)
+        const balanceOfPlayerOfToken0FromCall = (await getBalanceOfPlayerOfToken0()).toString()
+        const balanceOfPlayerOfToken1FromCall = (await getBalanceOfPlayerOfToken1()).toString()
+        const balanceOfContractOfToken0FromCal = (await getBalanceOfContractOfToken0()).toString()
+        const balanceOfContractOfToken1FromCal = (await getBalanceOfContractOfToken1()).toString()
+        const updatedStakedBalanceOfToken0 = (await getTokensStaked()).toString()
+        setBalanceOfPlayerOfToken0(balanceOfPlayerOfToken0FromCall)
+        setBalanceOfPlayerOfToken1(balanceOfPlayerOfToken1FromCall)
+        setBalanceOfContractOfToken0(balanceOfContractOfToken0FromCal)
+        setBalanceOfContractOfToken1(balanceOfContractOfToken1FromCal)
+        setStakedBalanceOfToken0(updatedStakedBalanceOfToken0)
     }
 
     useEffect(() => {
@@ -63,9 +91,11 @@ export default function Profile() {
 
     return (
         <CustomContainer>
-            <Text>Balance of User: {balanceOfPlayer.toString()} </Text>
-            <Text>Contract balance: {balanceOfContract.toString()} </Text>
-            <Text>Staked tokens: {stakedBalance.toString()} </Text>
+            <Text>Balance of Token#0: {balanceOfPlayerOfToken0.toString()} </Text>
+            <Text>Balance of Token#1: {balanceOfPlayerOfToken1.toString()} </Text>
+            <Text>Balance of Staked Token#0 : {stakedBalanceOfToken0.toString()} </Text>
+            <Text>Liquidity pool balance of Token#0: {balanceOfContractOfToken0.toString()} </Text>
+            <Text>Liquidity pool balance of Token#1: {balanceOfContractOfToken1.toString()} </Text>
         </CustomContainer>
     )
 }
