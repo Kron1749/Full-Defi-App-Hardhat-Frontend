@@ -1,6 +1,5 @@
 import CustomContainer from "./CustomContainer"
 import { useWeb3Contract } from "react-moralis"
-import { getBalanceOfPlayerOfToken0 } from "../Constants"
 import {
     testToken0ContractAddress,
     testToken0ABI,
@@ -9,15 +8,22 @@ import {
     stakingRewardsABI,
     stakingRewardsContractAddress,
     ammSwapContractAddress,
+    stakingRewardAddress,
+    testToken0Address,
+    testToken1Address,
+    AMMSwapAddress,
 } from "../Constants"
 import { Text } from "@chakra-ui/react"
 import { useState } from "react"
 import { useMoralis } from "react-moralis"
 import { useEffect } from "react"
 
+
+
 export default function Profile() {
     const { chainId: chainIdHex, isWeb3Enabled, account } = useMoralis()
     const chainId = parseInt(chainIdHex)
+    
     const stakingRewardAddress =
         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
     const testToken0Address =
@@ -99,3 +105,4 @@ export default function Profile() {
         </CustomContainer>
     )
 }
+

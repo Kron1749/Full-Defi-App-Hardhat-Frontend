@@ -1,7 +1,7 @@
 import { ConnectButton } from "web3uikit"
-import { Flex, Text, Button, Box, TabList, Tab, Tabs, TabPanels, TabPanel } from "@chakra-ui/react"
+import { Flex, Text, Box, TabList, Tab, Tabs, TabPanels, TabPanel } from "@chakra-ui/react"
 import Head from "next/head"
-import { useMoralis } from "react-moralis"
+import { useMoralis, useWeb3Contract } from "react-moralis"
 import Header from "../components/Header"
 import Profile from "../components/Profile"
 import Balance from "../components/Balance"
@@ -9,8 +9,12 @@ import StakeTokens from "../components/StakeTokens"
 import Rewards from "../components/Rewards"
 import Swap from "../components/Swap"
 
+
+
+
 export default function Home() {
-    let { isAuthenticated, account, logout, isLoggingOut, authenticate } = useMoralis()
+    let { isAuthenticated, account, logout, isLoggingOut,chainId} = useMoralis()
+
     if (!isAuthenticated) {
         return (
             <>
@@ -36,6 +40,7 @@ export default function Home() {
         )
     }
     return (
+        
         <>
             <Head>
                 <title>Defi App</title>
@@ -74,3 +79,5 @@ export default function Home() {
         </>
     )
 }
+
+

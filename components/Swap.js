@@ -23,6 +23,8 @@ import {
     InputGroup,
     InputRightElement,
     InputLeftElement,
+    InputLeftAddon,
+    InputRightAddon
 } from "@chakra-ui/react"
 
 export default function Swap() {
@@ -43,6 +45,7 @@ export default function Swap() {
     const [allowanceToken1, setAllowanceToken1] = useState("0")
     const [totalSupplyToken0, setTotalSupplyToken0] = useState("0")
     const [totalSupplyToken1, setTotalSupplyToken1] = useState("0")
+
 
     const { runContractFunction: swap } = useWeb3Contract({
         abi: ammSwapABI,
@@ -170,6 +173,7 @@ export default function Swap() {
                     <FormLabel>Tokens to Swap</FormLabel>
 
                     <InputGroup size="md">
+                    <InputRightAddon children={tokenToSwap != testToken0Address ? "Token1" : "Token0"} />
                         <Input
                             label="Amount"
                             id="swap_token_from"
@@ -180,7 +184,7 @@ export default function Swap() {
                                 setAmountToSwapToken(event.target.value)
                             }}
                         />
-                        <InputLeftElement ml="60">
+                        <InputLeftElement ml="80">
                             <Select
                                 onChange={(event) => {
                                     if (event.target.value == "Token0") {
@@ -188,21 +192,27 @@ export default function Swap() {
                                     } else {
                                         setTokenToSwap(testToken1Address)
                                     }
+                                    
                                 }}
-                            >
+                            >                 
                                 <option>Token1</option>
                                 <option>Token0</option>
+                                
                             </Select>
+
                         </InputLeftElement>
                     </InputGroup>
+
                     <InputGroup size="md" mt="6">
+                    <InputRightAddon children={tokenToSwap == testToken0Address ? "Token1" : "Token0"} />
                         <Input
                             label="Amount"
                             id="swap_token_to"
                             name="Swap token To"
                             type="number"
+                            placeholder="0"
                         />
-                        <InputLeftElement ml="60">
+                        <InputLeftElement ml="80">
                             <Select>
                                 <option>
                                     {tokenToSwap == testToken0Address ? "Token1" : "Token0"}
@@ -219,21 +229,3 @@ export default function Swap() {
     )
 }
 
-{
-    /* <Form>
-<FormControl mt="6" mb="6">
-    <FormLabel mt="6">Tokens to Swap</FormLabel>
-    <Input
-        mb="6"
-        label="Amount"
-        id="token_to_swap"
-        name="Swap token 0"
-        type="number"
-    />
-    <Input label="Amount" id="token_to_get" name="Swap token 1" type="number" />
-</FormControl>
-<Button type="submit" colorScheme="purple">
-    Swap Tokens
-</Button>
-</Form> */
-}
