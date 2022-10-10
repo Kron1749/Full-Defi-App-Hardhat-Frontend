@@ -7,27 +7,16 @@ const ammSwapContractAddress = require("./AMMSwap/contractAddressesAMMSwap.json"
 const ammSwapABI = require("./AMMSwap/abiAMMSwap.json")
 const stakingRewardsContractAddress = require("./StakingRewards/contractAddressesStakingRewards.json")
 const stakingRewardsABI = require("./StakingRewards/abiStakingRewards.json")
+const faucetAddresses = require("./Faucet/contractAddressesFaucet.json")
+const faucetAbi = require("./Faucet/abiFaucet.json")
 
 
-
-
-
-// const stakingRewardAddress =
-//         chainId in stakingRewardsContractAddress ? stakingRewardsContractAddress[chainId][0] : null
-//     const testToken0Address =
-//         chainId in testToken0ContractAddress ? testToken0ContractAddress[chainId][0] : null
-//     const testToken1Address =
-//         chainId in testToken1ContractAddress ? testToken1ContractAddress[chainId][0] : null
-//     const AMMSwapAddress =
-//         chainId in ammSwapContractAddress ? ammSwapContractAddress[chainId][0] : null
 
 
 
 module.exports = {
-    // stakingRewardAddress,
-    // testToken0Address,
-    // testToken1Address,
-    // AMMSwapAddress,
+    faucetAddresses,
+    faucetAbi,
     testToken0ContractAddress,
     testToken0ABI,
     testToken1ContractAddress,

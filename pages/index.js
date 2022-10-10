@@ -1,7 +1,7 @@
 import { ConnectButton } from "web3uikit"
 import { Flex, Text, Box, TabList, Tab, Tabs, TabPanels, TabPanel } from "@chakra-ui/react"
 import Head from "next/head"
-import { useMoralis, useWeb3Contract } from "react-moralis"
+import { useMoralis } from "react-moralis"
 import Header from "../components/Header"
 import Profile from "../components/Profile"
 import Balance from "../components/Balance"
@@ -12,9 +12,9 @@ import Swap from "../components/Swap"
 
 
 
+
 export default function Home() {
     let { isAuthenticated, account, logout, isLoggingOut,chainId} = useMoralis()
-
     if (!isAuthenticated) {
         return (
             <>
@@ -79,5 +79,4 @@ export default function Home() {
         </>
     )
 }
-
 

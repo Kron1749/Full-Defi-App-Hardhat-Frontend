@@ -21,9 +21,7 @@ import {
     Button,
     Select,
     InputGroup,
-    InputRightElement,
     InputLeftElement,
-    InputLeftAddon,
     InputRightAddon
 } from "@chakra-ui/react"
 
